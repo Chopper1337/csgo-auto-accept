@@ -99,9 +99,9 @@ def run():
                 y = top_left[1] + height / 2
                 y = y - 100 # Take 100 from y to click the button in the middle
                 # Click multiple times as it has failed before
-                click_button(x, y, config_click_duration)  # code
-                click_button(x, y, config_click_duration)  # code
-                click_button(x, y, config_click_duration)  # code
+                click_button(x, y, config_click_duration)
+                click_button(x, y, config_click_duration)
+                click_button(x, y, config_click_duration)
                 print("Template {} Found and clicked the button.".format(index))
 
                 # if you want to show the screenshot with the match
@@ -115,6 +115,7 @@ def run():
 def click_button(x: int, y: int, t: float):
     os.system("notify-send 'CS:GO Auto Accept' 'Found and clicked the button.'")
     pyautogui.click(x, y, duration=t)
+    time.sleep(0.5)
 
 
 def show_image(image_rgb, top_left, width, height, max_val):
@@ -185,8 +186,15 @@ COMMANDS = [
     [["loadconfig", "lc"], load_config, "the config is reloaded"]
 ]
 
+
 if __name__ == '__main__':
     start()
     load_config()
+
+    # Parse args
+    if len(sys.argv) > 1:
+        parse_input(sys.argv[1])
+        sys.exit(0)
+
     while True:
         parse_input(input("> "))
