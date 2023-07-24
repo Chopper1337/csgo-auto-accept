@@ -1,3 +1,4 @@
+import os
 import cv2
 import pyautogui
 import numpy as np
@@ -50,9 +51,18 @@ def load_config():
 
 
 def find_img_on_screen(image, template, template_name=""):
+    vals = []
     res = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+    vals.append(max_val)
     print(f"Template {template_name}: {max_val=}")
+    print(f"Average: {sum(vals) / len(vals)}")
+
+    # If we have more than 10 items in vals and max val (current scan) is 20% higher than the average, then treat it as a match
+    if len(vals) > 10 and max_val > (sum(vals) / len(vals)) * 1.2:
+        return True, max_loc, max_val
+
+    # Keep this as a fallback
     if max_val >= config_threshold:
         return True, max_loc, max_val  # max_loc = top_left
 
@@ -87,6 +97,10 @@ def run():
             if find:
                 x = top_left[0] + width / 2
                 y = top_left[1] + height / 2
+                y = y - 100 # Take 100 from y to click the button in the middle
+                # Click multiple times as it has failed before
+                click_button(x, y, config_click_duration)  # code
+                click_button(x, y, config_click_duration)  # code
                 click_button(x, y, config_click_duration)  # code
                 print("Template {} Found and clicked the button.".format(index))
 
@@ -99,6 +113,7 @@ def run():
 
 
 def click_button(x: int, y: int, t: float):
+    os.system("notify-send 'CS:GO Auto Accept' 'Found and clicked the button.'")
     pyautogui.click(x, y, duration=t)
 
 
@@ -164,9 +179,9 @@ def start():
 
 COMMANDS = [
     [["start", "s", "run", "r"], run, "starts the program"],
-    [["help", "h"], help_message, "the help will be printed"],
-    [["exit", "e", "stop", "st"], stop, "terminates the program with status 0"],
-    [["command", "commands", "cmd", "c"], print_commands, "all commands are printed"],
+    [["help", "h", "?"], help_message, "the help will be printed"],
+    [["exit", "e", "stop", "st", "q"], stop, "terminates the program with status 0"],
+    [["command", "commands", "cmd", "c", "l", "list"], print_commands, "all commands are printed"],
     [["loadconfig", "lc"], load_config, "the config is reloaded"]
 ]
 
